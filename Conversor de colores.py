@@ -34,13 +34,19 @@ def convertir_color():
         lbl_rgb["text"] = f"RGB: {rgb}"
         hex_code = rgb_a_hex(rgb)
         lbl_hex["text"] = f"Hexadecimal: {hex_code}"
-        copiar_al_portapapeles(hex_code)
     else:
         lbl_rgb["text"] = f"No se encontró una representación en RGB para el color {color}."
         lbl_hex["text"] = ""
 
-def copiar_al_portapapeles(texto):
-    pyperclip.copy(texto)
+def copiar_rgb_al_portapapeles():
+    rgb_text = lbl_rgb.cget("text")
+    rgb_value = rgb_text[rgb_text.find("("):]  # Extraer solo el valor
+    pyperclip.copy(rgb_value)
+
+def copiar_hex_al_portapapeles():
+    hex_text = lbl_hex.cget("text")
+    hex_value = hex_text[hex_text.find("#"):]  # Extraer solo el valor
+    pyperclip.copy(hex_value)
 
 def actualizar_lista(*args):
     input = buscar_var.get()
@@ -76,13 +82,16 @@ combo_color.pack(pady=5)
 btn_convertir = tk.Button(ventana, text="Convertir", command=convertir_color)
 btn_convertir.pack(pady=5)
 
-btn_copiar = tk.Button(ventana, text="Copiar al portapapeles", command=lambda: copiar_al_portapapeles(lbl_hex.cget("text")))
-btn_copiar.pack(pady=5)
-
 lbl_rgb = tk.Label(ventana, text="")
 lbl_rgb.pack()
 
+btn_copiar_rgb = tk.Button(ventana, text="Copiar RGB", command=copiar_rgb_al_portapapeles)
+btn_copiar_rgb.pack(pady=5)
+
 lbl_hex = tk.Label(ventana, text="")
 lbl_hex.pack()
+
+btn_copiar_hex = tk.Button(ventana, text="Copiar Hexadecimal", command=copiar_hex_al_portapapeles)
+btn_copiar_hex.pack(pady=5)
 
 ventana.mainloop()
