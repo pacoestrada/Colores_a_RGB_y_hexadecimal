@@ -91,7 +91,7 @@ ventana = tk.Tk()
 ventana.title("Conversor de Colores")
 ventana.geometry("300x200")
 
-lbl_titulo = tk.Label(ventana, text="Conversor de Colores", font=("Arial", 14))
+lbl_titulo = tk.Label(ventana, text="Conversor de Colores a RBG y Hxadecimal", font=("Arial", 14))
 lbl_titulo.pack(pady=10)
 
 lbl_buscar = tk.Label(ventana, text="Buscar:")
