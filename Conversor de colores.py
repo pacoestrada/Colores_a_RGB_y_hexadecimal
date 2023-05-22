@@ -58,6 +58,7 @@ colores = {
 
 def color_a_rgb(color):
     color = color.lower()
+
     if color in colores:
         return colores[color]
     else:
@@ -79,9 +80,12 @@ def convertir_color():
         lbl_rgb["text"] = f"No se encontró una representación en RGB para el color {color}."
         lbl_hex["text"] = ""
 
-def actualizar_lista(event):
+def actualizar_lista(*args):
     input = buscar_var.get()
-    combo_color['values'] = [color for color in colores_disponibles if input.lower() in color.lower()]
+    coincidencias = [color for color in colores_disponibles if input.lower() in color.lower()]
+    if coincidencias:
+        combo_color['values'] = coincidencias
+        combo_color.set(coincidencias[0])
 
 ventana = tk.Tk()
 ventana.title("Conversor de Colores")
