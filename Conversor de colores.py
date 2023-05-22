@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, StringVar
+import pyperclip
 
 colores = {
     "rojo": (255, 0, 0),
@@ -57,7 +58,6 @@ colores = {
 
 def color_a_rgb(color):
     color = color.lower()
-
     if color in colores:
         return colores[color]
     else:
@@ -74,18 +74,30 @@ def convertir_color():
         lbl_rgb["text"] = f"RGB: {rgb}"
         hex_code = rgb_a_hex(rgb)
         lbl_hex["text"] = f"Hexadecimal: {hex_code}"
+        pyperclip.copy(hex_code)
     else:
         lbl_rgb["text"] = f"No se encontró una representación en RGB para el color {color}."
         lbl_hex["text"] = ""
 
-# Crear la ventana principal
+def actualizar_lista(event):
+    input = buscar_var.get()
+    combo_color['values'] = [color for color in colores_disponibles if input.lower() in color.lower()]
+
 ventana = tk.Tk()
 ventana.title("Conversor de Colores")
 ventana.geometry("300x200")
 
-# Crear los componentes de la GUI
 lbl_titulo = tk.Label(ventana, text="Conversor de Colores", font=("Arial", 14))
 lbl_titulo.pack(pady=10)
+
+lbl_buscar = tk.Label(ventana, text="Buscar:")
+lbl_buscar.pack()
+
+buscar_var = StringVar()
+buscar_var.trace("w", actualizar_lista)
+
+entrada_buscar = tk.Entry(ventana, textvariable=buscar_var)
+entrada_buscar.pack()
 
 lbl_color = tk.Label(ventana, text="Color:")
 lbl_color.pack()
@@ -104,5 +116,4 @@ lbl_rgb.pack()
 lbl_hex = tk.Label(ventana, text="")
 lbl_hex.pack()
 
-# Ejecutar la aplicación
 ventana.mainloop()
