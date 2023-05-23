@@ -1,6 +1,6 @@
-import tkinter as tk
-from tkinter import ttk, StringVar
-import pyperclip
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, Gdk
 
 colores = {
     "rojo": (255, 0, 0),
@@ -26,72 +26,56 @@ def color_a_rgb(color):
 def rgb_a_hex(rgb):
     return '#%02x%02x%02x' % rgb
 
-def convertir_color():
-    color = combo_color.get()
-    rgb = color_a_rgb(color)
+class ColorConverter(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self, title="Conversor de Colores")
 
-    if rgb:
-        lbl_rgb["text"] = f"RGB: {rgb}"
-        hex_code = rgb_a_hex(rgb)
-        lbl_hex["text"] = f"Hexadecimal: {hex_code}"
-    else:
-        lbl_rgb["text"] = f"No se encontró una representación en RGB para el color {color}."
-        lbl_hex["text"] = ""
+        self.set_border_width(10)
 
-def copiar_rgb_al_portapapeles():
-    rgb_text = lbl_rgb.cget("text")
-    rgb_value = rgb_text[rgb_text.find("("):]  # Extraer solo el valor
-    pyperclip.copy(rgb_value)
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        self.add(vbox)
 
-def copiar_hex_al_portapapeles():
-    hex_text = lbl_hex.cget("text")
-    hex_value = hex_text[hex_text.find("#"):]  # Extraer solo el valor
-    pyperclip.copy(hex_value)
+        self.combo = Gtk.ComboBoxText.new()
+        for color in colores.keys():
+            self.combo.append_text(color)
+        self.combo.connect("changed", self.on_combo_changed)
+        vbox.pack_start(self.combo, False, False, 0)
 
-def actualizar_lista(*args):
-    input = buscar_var.get()
-    coincidencias = [color for color in colores_disponibles if input.lower() in color.lower()]
-    if coincidencias:
-        combo_color['values'] = coincidencias
-        combo_color.set(coincidencias[0])
+        self.rgb_label = Gtk.Label(label="")
+        vbox.pack_start(self.rgb_label, False, False, 0)
 
-ventana = tk.Tk()
-ventana.title("Conversor de Colores")
-ventana.geometry("300x200")
+        rgb_copy_button = Gtk.Button.new_with_label("Copiar RGB")
+        rgb_copy_button.connect("clicked", self.copy_rgb)
+        vbox.pack_start(rgb_copy_button, False, False, 0)
 
-lbl_titulo = tk.Label(ventana, text="Conversor de Colores", font=("Arial", 14))
-lbl_titulo.pack(pady=10)
+        self.hex_label = Gtk.Label(label="")
+        vbox.pack_start(self.hex_label, False, False, 0)
 
-lbl_buscar = tk.Label(ventana, text="Buscar:")
-lbl_buscar.pack()
+        hex_copy_button = Gtk.Button.new_with_label("Copiar Hexadecimal")
+        hex_copy_button.connect("clicked", self.copy_hex)
+        vbox.pack_start(hex_copy_button, False, False, 0)
 
-buscar_var = StringVar()
-buscar_var.trace("w", actualizar_lista)
+    def on_combo_changed(self, combo):
+        color = combo.get_active_text()
+        if color:
+            rgb = color_a_rgb(color)
+            if rgb:
+                self.rgb_label.set_text(f"RGB: {rgb}")
+                hex_code = rgb_a_hex(rgb)
+                self.hex_label.set_text(f"Hexadecimal: {hex_code}")
+            else:
+                self.rgb_label.set_text(f"No se encontró una representación en RGB para el color {color}.")
+                self.hex_label.set_text("")
 
-entrada_buscar = tk.Entry(ventana, textvariable=buscar_var)
-entrada_buscar.pack()
+    def copy_rgb(self, widget):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.rgb_label.get_text(), -1)
 
-lbl_color = tk.Label(ventana, text="Color:")
-lbl_color.pack()
+    def copy_hex(self, widget):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.hex_label.get_text(), -1)
 
-colores_disponibles = list(colores.keys())
-
-combo_color = ttk.Combobox(ventana, values=colores_disponibles)
-combo_color.pack(pady=5)
-
-btn_convertir = tk.Button(ventana, text="Convertir", command=convertir_color)
-btn_convertir.pack(pady=5)
-
-lbl_rgb = tk.Label(ventana, text="")
-lbl_rgb.pack()
-
-btn_copiar_rgb = tk.Button(ventana, text="Copiar RGB", command=copiar_rgb_al_portapapeles)
-btn_copiar_rgb.pack(pady=5)
-
-lbl_hex = tk.Label(ventana, text="")
-lbl_hex.pack()
-
-btn_copiar_hex = tk.Button(ventana, text="Copiar Hexadecimal", command=copiar_hex_al_portapapeles)
-btn_copiar_hex.pack(pady=5)
-
-ventana.mainloop()
+win = ColorConverter()
+win.connect("destroy", Gtk.main_quit)
+win.show_all()
+Gtk.main()
