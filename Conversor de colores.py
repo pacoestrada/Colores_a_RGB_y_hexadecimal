@@ -40,8 +40,7 @@ class ColorConverter(Gtk.Window):
         vbox.pack_start(self.search_entry, False, False, 0)
 
         self.combo = Gtk.ComboBoxText.new()
-        for color in colores.keys():
-            self.combo.append_text(color)
+        self.refresh_combo()
         self.combo.connect("changed", self.on_combo_changed)
         vbox.pack_start(self.combo, False, False, 0)
 
@@ -60,7 +59,10 @@ class ColorConverter(Gtk.Window):
         vbox.pack_start(hex_copy_button, False, False, 0)
 
     def on_search_entry_changed(self, entry):
-        search_text = entry.get_text().lower()
+        self.refresh_combo()
+
+    def refresh_combo(self):
+        search_text = self.search_entry.get_text().lower()
         self.combo.remove_all()
         for color in colores.keys():
             if search_text in color:
@@ -90,3 +92,4 @@ win = ColorConverter()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
+
