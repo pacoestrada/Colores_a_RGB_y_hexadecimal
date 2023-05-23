@@ -35,6 +35,10 @@ class ColorConverter(Gtk.Window):
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.add(vbox)
 
+        self.search_entry = Gtk.Entry()
+        self.search_entry.connect("changed", self.on_search_entry_changed)
+        vbox.pack_start(self.search_entry, False, False, 0)
+
         self.combo = Gtk.ComboBoxText.new()
         for color in colores.keys():
             self.combo.append_text(color)
@@ -54,6 +58,13 @@ class ColorConverter(Gtk.Window):
         hex_copy_button = Gtk.Button.new_with_label("Copiar Hexadecimal")
         hex_copy_button.connect("clicked", self.copy_hex)
         vbox.pack_start(hex_copy_button, False, False, 0)
+
+    def on_search_entry_changed(self, entry):
+        search_text = entry.get_text().lower()
+        self.combo.remove_all()
+        for color in colores.keys():
+            if search_text in color:
+                self.combo.append_text(color)
 
     def on_combo_changed(self, combo):
         color = combo.get_active_text()
