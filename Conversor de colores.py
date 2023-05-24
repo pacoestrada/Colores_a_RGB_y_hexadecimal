@@ -70,11 +70,14 @@ def rgb_a_hex(rgb):
 class ColorConverter(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="Conversor de Colores")
-
         self.set_border_width(10)
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.add(vbox)
+
+        instructions = Gtk.Label()
+        instructions.set_markup("<b>Modo de uso:</b>\n1. Escriba el nombre del color en el buscador.\n2. Seleccione el color de la lista desplegable para obtener su representación en RGB y hexadecimal.")
+        vbox.pack_start(instructions, False, False, 0)
 
         self.search_entry = Gtk.Entry()
         self.search_entry.connect("changed", self.on_search_entry_changed)
@@ -84,6 +87,10 @@ class ColorConverter(Gtk.Window):
         self.refresh_combo()
         self.combo.connect("changed", self.on_combo_changed)
         vbox.pack_start(self.combo, False, False, 0)
+
+        self.color_display = Gtk.DrawingArea()
+        self.color_display.set_size_request(50, 50)
+        vbox.pack_start(self.color_display, False, False, 0)
 
         self.rgb_label = Gtk.Label(label="")
         vbox.pack_start(self.rgb_label, False, False, 0)
@@ -98,6 +105,10 @@ class ColorConverter(Gtk.Window):
         hex_copy_button = Gtk.Button.new_with_label("Copiar Hexadecimal")
         hex_copy_button.connect("clicked", self.copy_hex)
         vbox.pack_start(hex_copy_button, False, False, 0)
+
+        credits = Gtk.Label()
+        credits.set_markup("Desarrollado por Paco Estrada bajo la licencia GPL3. El código fuente se encuentra disponible en <a href='https://github.com/pacoestrada'>https://github.com/pacoestrada</a>")
+        vbox.pack_end(credits, False, False, 0)
 
     def on_search_entry_changed(self, entry):
         self.refresh_combo()
@@ -117,9 +128,15 @@ class ColorConverter(Gtk.Window):
                 self.rgb_label.set_text(f"RGB: {rgb}")
                 hex_code = rgb_a_hex(rgb)
                 self.hex_label.set_text(f"Hexadecimal: {hex_code}")
+                self.color_display.override_background_color(0, Gdk.RGBA(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1))
             else:
                 self.rgb_label.set_text(f"No se encontró una representación en RGB para el color {color}.")
                 self.hex_label.set_text("")
+                self.color_display.override_background_color(0, Gdk.RGBA(1, 1, 1, 1))  # set background to white
+        else:
+            self.rgb_label.set_text("")
+            self.hex_label.set_text("")
+            self.color_display.override_background_color(0, Gdk.RGBA(1, 1, 1, 1))  # set background to white
 
     def copy_rgb(self, widget):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -133,4 +150,3 @@ win = ColorConverter()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
-
